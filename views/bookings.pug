@@ -1,0 +1,46 @@
+extends base
+
+mixin navItem(link, icon, text, active)
+    li(class=`${active ? 'side-nav--active' : ''}`)
+        a(href=`${link}`)
+            svg
+                use(xlink:href=`img/icons.svg#icon-${icon}`)
+            | #{text}
+
+mixin listItem(name, date, price)
+    li.booking-list-item
+        svg
+            use(xlink:href='img/icons.svg#icon-shopping-bag')
+        .booking-item
+            - const dateFmt = date.toLocaleString('en-us', {month: 'long', year: 'numeric'})
+            div= `${name} Tour`
+            div= dateFmt
+            div.bold-text= `$ ${price}`
+
+block content
+    main.main
+        .user-view
+            nav.user-view__menu
+                ul.side-nav
+                    +navItem('/me', 'settings', 'Settings')
+                    +navItem('/my-tours', 'briefcase', 'My bookings', true)
+                    +navItem('#', 'star', 'My reviews')
+                    +navItem('#', 'credit-card', 'Billing')
+
+                - if(user.role === 'admin')
+                    .admin-nav
+                        h5.admin-nav__heading Admin
+                        ul.side-nav
+                            +navItem('#', 'map', 'Manage tours')
+                            +navItem('#', 'users', 'Manage users')
+                            +navItem('#', 'star', 'Manage reviews')
+                            +navItem('#', 'briefcase', 'Manage bookings')
+
+            .user-view__content
+                .user-view__form-container
+                    h2.heading-secondary.ma-bt-md Your bookings
+                    ul.booking-list
+                        each tour in tours
+                            +listItem(tour.name, tour.startDates[0], tour.price)
+                    div
+                        a.btn.btn--small.btn--green(href='/') Discover more tours
