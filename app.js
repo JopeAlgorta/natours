@@ -16,6 +16,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
@@ -46,6 +47,15 @@ const limiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     message: 'Too many request for this IP, please try again in a hour!'
 });
+
+/** This route is put here because stripe demands the body of these request to be in a raw format.
+ * So if we place it in the booking controller, then the bodyParser (express.json()) middleware will apply to
+ * it. */
+app.post(
+    '/webhook-checkout',
+    express.raw({ type: 'application/json' }),
+    bookingController.webhookCheckout
+);
 
 app.use('/api', limiter); // Limit only API routes
 
